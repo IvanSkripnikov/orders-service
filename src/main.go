@@ -1,11 +1,12 @@
 package main
 
 import (
-	"authenticator/helpers"
-	"authenticator/httphandler"
-	"authenticator/logger"
-	"authenticator/models"
 	"fmt"
+
+	"orders-service/helpers"
+	"orders-service/httphandler"
+	"orders-service/logger"
+	"orders-service/models"
 )
 
 func main() {
@@ -26,8 +27,8 @@ func main() {
 		logger.Fatal(fmt.Sprintf("Cant initialize DB: %v", err))
 	}
 
-	// инициализация сессий
-	helpers.SessionsMap = map[string]models.User{}
+	// выполнение миграций
+	helpers.CreateTables()
 
 	// инициализация REST-api
 	httphandler.InitHTTPServer()

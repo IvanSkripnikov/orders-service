@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"authenticator/logger"
+	"orders-service/logger"
 )
 
 func getIDFromRequestString(url string) (int, error) {

@@ -1,4 +1,4 @@
-module authenticator
+module orders-service
 
 go 1.19
 

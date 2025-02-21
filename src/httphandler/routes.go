@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"authenticator/controllers"
+	"orders-service/controllers"
 )
 
 type route struct {
@@ -14,11 +14,10 @@ type route struct {
 }
 
 var routes = []route{
-	// auth
-	newRoute(http.MethodPost, "/register", controllers.Register),
-	newRoute(http.MethodPost, "/login", controllers.Login),
-	newRoute(http.MethodPost, "/auth", controllers.Auth),
-	newRoute(http.MethodGet, "/signin", controllers.SignIn),
-	newRoute(http.MethodPost, "/logout", controllers.Logout),
-	newRoute(http.MethodGet, "/sessions", controllers.Sessions),
+	// system
+	newRoute(http.MethodGet, "/health", controllers.HealthCheck),
+	// orders
+	newRoute(http.MethodGet, "/v1/orders/list", controllers.GetOrdersListV1),
+	newRoute(http.MethodGet, "/v1/orders/get/([0-9]+)", controllers.GetOrderV1),
+	newRoute(http.MethodPost, "/v1/orders/create", controllers.CreateOrderV1),
 }

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"authenticator/helpers"
-	"authenticator/logger"
+	"orders-service/helpers"
+	"orders-service/logger"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )

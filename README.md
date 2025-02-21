@@ -1,14 +1,13 @@
 ## Overview
 
-This repository is of authenticator service
+This repository is of orders service
 
 ## Endpoints
 
-Method | Path        | Description                                   |                                                                         
----    |-------------|------------------------------------------------
-POST   | `/register` | Регистрация нового пользователя               |
-POST   | `/login`    | Логин пользователя                            |
-POST   | `/auth`     | Авторизация пользователя                      |
-GET    | `/signin`   | Информация о необходимости авторизации        |
-POST   | `/logout`   | Разлогин пользователя                         |
-GET    | `/sessions` | Получение всех сессий                         |
+Method | Path                   | Description                                   |                                                                         
+---    |------------------------|------------------------------------------------
+GET    | `/health`              | Health page                                   |
+GET    | `/metrics`             | Страница с метриками                          |
+GET    | `/v1/orders/list`      | Получение заказов системы                     |
+GET    | `/v1/orders/get/{id}`  | Получение заказа системы по id                |
+POST   | `/v1/orders/create`    | Создание нового заказа                        |
