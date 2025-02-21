@@ -49,7 +49,7 @@ func GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isExists("SELECT * FROM users WHERE id = ?", order.ID) {
+	if !isExists("SELECT * FROM orders WHERE id = ?", order.ID) {
 		FormatResponse(w, http.StatusNotFound, category)
 		return
 	}
@@ -85,7 +85,7 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "INSERT INTO users (user_id, item_id, price, created, updated) VALUES (?, ?, ?, ?, ?)"
+	query := "INSERT INTO orders (user_id, item_id, price, created, updated) VALUES (?, ?, ?, ?, ?)"
 	currentTimestamp := GetCurrentTimestamp()
 	rows, err := DB.Query(query, order.UserID, order.ItemID, order.Price, currentTimestamp, currentTimestamp)
 
