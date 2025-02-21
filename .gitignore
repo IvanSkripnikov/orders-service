@@ -1,0 +1,13 @@
+/app/log/*.log
+
+*.dll
+*.so
+*.dylib
+
+*.test
+
+*.out
+
+.env
+
+**/tmp
