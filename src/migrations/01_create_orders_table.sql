@@ -6,3 +6,4 @@ CREATE TABLE IF NOT EXISTS orders (
     created BIGINT UNSIGNED,
     updated BIGINT UNSIGNED,
     completed TINYINT DEFAULT 0
+);
