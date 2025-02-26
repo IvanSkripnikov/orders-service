@@ -99,7 +99,7 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	data := ResponseData{
-		"message": "Order successfully created!",
+		"status": "Success",
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
