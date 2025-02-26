@@ -5,6 +5,7 @@ RUN apk add --update  && \
 
 ADD ./src /go/src/orders-service
 ADD ./src/log /go/log
+ADD ./src/migrations /go/migrations
 ADD ./src/config /go/config
 
 RUN cd /go/src/orders-service && \
@@ -14,6 +15,7 @@ FROM alpine:3.18.4 AS app
 
 COPY --from=builder /go/bin/* /go/bin/orders-service
 COPY --from=builder /go/log /go/log
+COPY --from=builder /go/migrations /go/migrations
 COPY --from=builder /go/config /go/config
 
 ENV CONTAINER_NAME=orders-service
