@@ -5,8 +5,9 @@ import (
 
 	"orders-service/helpers"
 	"orders-service/httphandler"
-	"orders-service/logger"
 	"orders-service/models"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 func main() {

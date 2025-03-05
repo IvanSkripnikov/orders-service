@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"orders-service/logger"
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 const MigrationTableName = "migration"

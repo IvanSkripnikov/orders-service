@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"orders-service/logger"
 	"orders-service/models"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 func GetOrdersList(w http.ResponseWriter, _ *http.Request) {

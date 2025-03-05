@@ -6,20 +6,14 @@ import (
 	"os"
 	"strings"
 
-	"orders-service/logger"
 	"orders-service/models"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 const migrationsDir = "./migrations"
-
-type DataBaseConnection struct {
-	host     string
-	db       string
-	user     string
-	password string
-}
 
 var DB *sql.DB
 
