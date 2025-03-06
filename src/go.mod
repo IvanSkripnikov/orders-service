@@ -4,6 +4,7 @@ go 1.24
 
 require (
 	github.com/IvanSkripnikov/go-logger v1.0.8
+	github.com/IvanSkripnikov/go-migrator v1.0.1
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/prometheus/client_golang v1.20.5
 )
