@@ -19,5 +19,6 @@ var routes = []route{
 	// orders
 	newRoute(http.MethodGet, "/v1/orders/list", controllers.GetOrdersListV1),
 	newRoute(http.MethodGet, "/v1/orders/get/([0-9]+)", controllers.GetOrderV1),
+	newRoute(http.MethodGet, "/v1/orders/get-by-user/([0-9]+)", controllers.GetOrdersByUserV1),
 	newRoute(http.MethodPost, "/v1/orders/create", controllers.CreateOrderV1),
 }

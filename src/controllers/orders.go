@@ -24,6 +24,15 @@ func GetOrderV1(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetOrdersByUserV1(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		helpers.GetOrdersByUser(w, r)
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/orders/get-by-user")
+	}
+}
+
 func CreateOrderV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:

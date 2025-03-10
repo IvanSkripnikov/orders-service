@@ -2,14 +2,23 @@ package helpers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
+	"orders-service/models"
 	"time"
 
 	logger "github.com/IvanSkripnikov/go-logger"
+	"github.com/redis/go-redis/v9"
 )
+
+var Config *models.Config
+
+func InitConfig(cfg *models.Config) {
+	Config = cfg
+}
 
 func GetCurrentTimestamp() int64 {
 	return time.Now().Unix()
@@ -67,4 +76,21 @@ func CreateQueryWithScalarResponse(method, url string, data any) (string, error)
 	}
 
 	return response, nil
+}
+
+func SendNotification(message map[string]interface{}) {
+	_, err := redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		logger.Fatalf("Error connection to Redis: %v", err)
+	}
+
+	_, err = redisClient.XAdd(context.Background(), &redis.XAddArgs{
+		Stream: Config.Redis.Stream,
+		Values: message,
+	}).Result()
+	if err != nil {
+		logger.Fatalf("Error sending to redis stream: %v", err)
+	} else {
+		logger.Info("Succsessfuly send to stream")
+	}
 }

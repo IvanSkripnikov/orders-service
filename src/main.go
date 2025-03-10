@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"orders-service/helpers"
 	"orders-service/httphandler"
 	"orders-service/models"
@@ -21,12 +22,18 @@ func main() {
 		logger.Fatalf("Config error: %v", err)
 	}
 
+	// сделать конфиг глобальным для хэлпера
+	helpers.InitConfig(config)
+
 	// настройка коннекта к БД
 	helpers.InitDatabase(config.Database)
 
 	// выполнение миграций
 	migrationModels := models.GetModels()
 	gormdb.ApplyMigrationsForClient(models.ServiceDatabase, migrationModels...)
+
+	// настройка коннекта к redis
+	helpers.InitRedis(context.Background(), config.Redis)
 
 	// инициализация REST-api
 	httphandler.InitHTTPServer()
