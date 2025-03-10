@@ -7,35 +7,21 @@ import (
 
 	"orders-service/models"
 
-	logger "github.com/IvanSkripnikov/go-logger"
+	"github.com/IvanSkripnikov/go-gormdb"
 )
 
 func GetOrdersList(w http.ResponseWriter, _ *http.Request) {
 	category := "/v1/orders/list"
 	var orders []models.Order
 
-	query := "SELECT id, user_id, item_id, price, created, updated, completed FROM orders WHERE id > 0"
-	rows, err := DB.Query(query)
-	if err != nil {
-		logger.Error(err.Error())
-	}
-
-	defer func() {
-		_ = rows.Close()
-		_ = rows.Err()
-	}()
-
-	for rows.Next() {
-		order := models.Order{}
-		if err = rows.Scan(&order.ID, &order.UserID, &order.ItemID, &order.Price, &order.Created, &order.Updated, &order.Completed); err != nil {
-			logger.Error(err.Error())
-			continue
-		}
-		orders = append(orders, order)
+	db := gormdb.GetClient(models.ServiceDatabase)
+	err := db.Find(&orders).Error
+	if checkError(w, err, category) {
+		return
 	}
 
 	data := ResponseData{
-		"data": orders,
+		"response": orders,
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
@@ -55,24 +41,14 @@ func GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "SELECT id, user_id, item_id, price, created, updated, completed FROM orders WHERE id = ?"
-	rows, err := DB.Prepare(query)
-
-	if checkError(w, err, category) {
-		return
-	}
-
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	err = rows.QueryRow(order.ID).Scan(&order.ID, &order.UserID, &order.ItemID, &order.Price, &order.Created, &order.Updated, &order.Completed)
+	db := gormdb.GetClient(models.ServiceDatabase)
+	err := db.Where("id = ?", order.ID).First(&order).Error
 	if checkError(w, err, category) {
 		return
 	}
 
 	data := ResponseData{
-		"data": order,
+		"response": order,
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
@@ -86,21 +62,18 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "INSERT INTO orders (user_id, item_id, price, created, updated) VALUES (?, ?, ?, ?, ?)"
 	currentTimestamp := GetCurrentTimestamp()
-	rows, err := DB.Query(query, order.UserID, order.ItemID, order.Price, currentTimestamp, currentTimestamp)
+	order.Created = int(currentTimestamp)
+	order.Updated = int(currentTimestamp)
 
+	db := gormdb.GetClient(models.ServiceDatabase)
+	err = db.Create(&order).Error
 	if checkError(w, err, category) {
 		return
 	}
 
-	defer func() {
-		_ = rows.Close()
-		_ = rows.Err()
-	}()
-
 	data := ResponseData{
-		"status": "Success",
+		"response": "success",
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }

@@ -1,14 +1,12 @@
 package main
 
 import (
-	"fmt"
-
 	"orders-service/helpers"
 	"orders-service/httphandler"
 	"orders-service/models"
 
+	"github.com/IvanSkripnikov/go-gormdb"
 	logger "github.com/IvanSkripnikov/go-logger"
-	migrator "github.com/IvanSkripnikov/go-migrator"
 )
 
 func main() {
@@ -20,17 +18,15 @@ func main() {
 	// настройка всех конфигов
 	config, err := models.LoadConfig()
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Config error: %v", err))
+		logger.Fatalf("Config error: %v", err)
 	}
 
 	// настройка коннекта к БД
-	_, err = helpers.InitDataBase(config.Database)
-	if err != nil {
-		logger.Fatal(fmt.Sprintf("Cant initialize DB: %v", err))
-	}
+	helpers.InitDatabase(config.Database)
 
 	// выполнение миграций
-	migrator.CreateTables(helpers.DB)
+	migrationModels := models.GetModels()
+	gormdb.ApplyMigrationsForClient(models.ServiceDatabase, migrationModels...)
 
 	// инициализация REST-api
 	httphandler.InitHTTPServer()

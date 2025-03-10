@@ -2,23 +2,20 @@ package models
 
 import (
 	"os"
-	"strconv"
+
+	"github.com/IvanSkripnikov/go-gormdb"
+	"gorm.io/gorm/schema"
 )
 
 type Config struct {
-	Database Database
+	Database gormdb.Database
 }
 
 func LoadConfig() (*Config, error) {
-	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
-	if err != nil {
-		return nil, err
-	}
-
 	return &Config{
-		Database: Database{
+		Database: gormdb.Database{
 			Address:  os.Getenv("DB_ADDRESS"),
-			Port:     dbPort,
+			Port:     os.Getenv("DB_PORT"),
 			User:     os.Getenv("DB_USER"),
 			Password: os.Getenv("DB_PASSWORD"),
 			DB:       os.Getenv("DB_NAME"),
@@ -30,5 +27,11 @@ func GetRequiredVariables() []string {
 	return []string{
 		// Обязательные переменные окружения для подключения к БД сервиса
 		"DB_ADDRESS", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME",
+	}
+}
+
+func GetModels() []schema.Tabler {
+	return []schema.Tabler{
+		Order{},
 	}
 }

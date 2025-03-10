@@ -2,10 +2,10 @@ package helpers
 
 import (
 	"database/sql"
-	"fmt"
 
 	"orders-service/models"
 
+	"github.com/IvanSkripnikov/go-gormdb"
 	logger "github.com/IvanSkripnikov/go-logger"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -13,24 +13,14 @@ import (
 
 var DB *sql.DB
 
-// InitDataBase подключение к БД сервиса
-func InitDataBase(config models.Database) (*sql.DB, error) {
-	dataSource := GetDatabaseConnectionString(config)
-	db, err := sql.Open("mysql", dataSource)
-
+func InitDatabase(config gormdb.Database) {
+	gormDatabase, err := gormdb.AddMysql(models.ServiceDatabase, config)
 	if err != nil {
-		logger.Fatalf("Failed to connect to service database. Error: %v", err)
-		return nil, err
+		logger.Fatalf("Cant initialize DB: %v", err)
 	}
-
+	db, err := gormDatabase.DB()
+	if err != nil {
+		logger.Fatalf("Cant get DB: %v", err)
+	}
 	DB = db
-
-	return db, nil
-}
-
-func GetDatabaseConnectionString(config models.Database) string {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
-		config.User, config.Password, config.Address, config.Port, config.DB)
-	logger.Info(connectionString)
-	return connectionString
 }
