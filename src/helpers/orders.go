@@ -98,7 +98,8 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	response := "success"
 	newOrderParams := models.OrderParams{UserID: order.UserID, Price: order.Price, ItemID: order.ItemID, Volume: order.Volume, OrderID: order.ID}
-	if orderCreateSaga(newOrderParams) {
+	if !orderCreateSaga(newOrderParams) {
+		db.Model(&order).Update("status", models.StatusCanceled)
 		response = "failure"
 	} else {
 		err = db.Model(&order).Update("status", models.StatusCompleted).Error
@@ -116,9 +117,9 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 func orderCreateSaga(orderParams models.OrderParams) bool {
 	// 1. списываем средаства у пользователя
 	newPayment := models.PaymentParams{UserID: orderParams.UserID, Amount: orderParams.Price}
-	paymentResponse, err := CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/account/buy", newPayment)
+	paymentResponse, err := CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/pay", newPayment)
 	if paymentResponse != models.Success || err != nil {
-		logger.Errorf("Unsuccessful payment: %v", newPayment)
+		logger.Errorf("Unsuccessful payment: %v, paymentRespoonse: %v, error: %v", newPayment, paymentResponse, err)
 
 		// отправить сообщение в redis
 		messageData := map[string]interface{}{
@@ -135,10 +136,10 @@ func orderCreateSaga(orderParams models.OrderParams) bool {
 	newItemBook := models.BookingItem{ItemID: orderParams.ItemID, Volume: orderParams.Volume}
 	itemBookResponse, err := CreateQueryWithScalarResponse(http.MethodPost, Config.WarehouseServiceUrl+"/v1/warehouses/book-item", newItemBook)
 	if itemBookResponse != models.Success || err != nil {
-		logger.Errorf("Unsuccessful booking: %v", newItemBook)
+		logger.Errorf("Unsuccessful booking: %v, itemBookRespoonse: %v, error: %v", newItemBook, itemBookResponse, err)
 
 		// в случае неудачи делаем возврат средств
-		_, err = CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/account/rollback", newPayment)
+		_, err = CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/rollback", newPayment)
 		if err != nil {
 			logger.Errorf("Unsuccessful rollback: %v", err)
 		}
@@ -159,10 +160,10 @@ func orderCreateSaga(orderParams models.OrderParams) bool {
 	newCourierBook := models.BookingCourier{OrderID: orderParams.OrderID}
 	courierBookResponse, err := CreateQueryWithScalarResponse(http.MethodPost, Config.DeliveryServiceUrl+"/v1/couriers/book", newCourierBook)
 	if courierBookResponse != models.Success || err != nil {
-		logger.Errorf("Unsuccessful booking delivery: %v", newCourierBook)
+		logger.Errorf("Unsuccessful booking delivery: %v, courierBookRespoonse: %v, error: %v", newCourierBook, courierBookResponse, err)
 
 		// в случае неудачи делаем возврат средств и снимаем бронь со склада
-		_, err = CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/account/rollback", newPayment)
+		_, err = CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/rollback", newPayment)
 		if err != nil {
 			logger.Errorf("Unsuccessful rollback: %v", err)
 		}

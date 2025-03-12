@@ -51,7 +51,7 @@ func CreateQueryWithScalarResponse(method, url string, data any) (string, error)
 	}
 
 	resp, err := client.Do(req)
-	logger.Infof("response for request: %v", resp.Body)
+	logger.Infof("response for request: %v", resp)
 	if err != nil {
 		return response, err
 	}
