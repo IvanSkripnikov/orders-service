@@ -65,5 +65,6 @@ func GetRequiredVariables() []string {
 func GetModels() []schema.Tabler {
 	return []schema.Tabler{
 		Order{},
+		UniqueOrder{},
 	}
 }

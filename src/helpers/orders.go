@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/IvanSkripnikov/go-gormdb"
 	"github.com/IvanSkripnikov/go-logger"
+	"gorm.io/gorm"
 )
 
 func GetOrdersList(w http.ResponseWriter, _ *http.Request) {
@@ -91,21 +93,42 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	order.Updated = int(currentTimestamp)
 
 	db := gormdb.GetClient(models.ServiceDatabase)
-	err = db.Create(&order).Error
-	if checkError(w, err, category) {
-		return
-	}
 
+	err = db.Where("request_id = ?", order.RequestID).First(&order).Error
+
+	// такого заказа раньше не было, создаём новый, иначе возвращаем его результат
+	var uniqueOrder models.UniqueOrder
 	response := "success"
-	newOrderParams := models.OrderParams{UserID: order.UserID, Price: order.Price, ItemID: order.ItemID, Volume: order.Volume, OrderID: order.ID}
-	if !orderCreateSaga(newOrderParams) {
-		db.Model(&order).Update("status", models.StatusCanceled)
-		response = "failure"
-	} else {
-		err = db.Model(&order).Update("status", models.StatusCompleted).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = db.Create(&order).Error
 		if checkError(w, err, category) {
-			response = "failure"
+			return
 		}
+
+		newOrderParams := models.OrderParams{UserID: order.UserID, Price: order.Price, ItemID: order.ItemID, Volume: order.Volume, OrderID: order.ID}
+		if !orderCreateSaga(newOrderParams) {
+			db.Model(&order).Update("status", models.StatusCanceled)
+			response = "failure"
+		} else {
+			err = db.Model(&order).Update("status", models.StatusCompleted).Error
+			if checkError(w, err, category) {
+				response = "failure"
+			}
+		}
+
+		// создаём запись с уникальным ID от пользователя
+		uniqueOrder.RequestID = order.RequestID
+		uniqueOrder.Response = response
+		err = db.Create(&uniqueOrder).Error
+		if err != nil {
+			logger.Errorf("Cant create unique order record %v", err)
+		}
+	} else {
+		err = db.Where("request_id = ?", order.RequestID).First(&uniqueOrder).Error
+		if checkError(w, err, category) {
+			return
+		}
+		response = uniqueOrder.Response
 	}
 
 	data := ResponseData{
