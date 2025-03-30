@@ -10,9 +10,9 @@ type Order struct {
 	ItemID    int     `gorm:"index;type:int" json:"itemId"`
 	Volume    int     `gorm:"type:int" json:"volume"`
 	Price     float32 `gorm:"type:float" json:"price"`
-	Created   int     `gorm:"index;type:bigint" json:"created"`
-	Updated   int     `gorm:"index;type:bigint" json:"updated"`
-	Status    uint8   `gorm:"index;type:tinyint;default:1" json:"status"`
+	Created   string  `gorm:"type:text" json:"created"`
+	Updated   string  `gorm:"type:text" json:"updated"`
+	Status    int     `gorm:"index;type:tinyint;default:1" json:"status"`
 	RequestID string  `gorm:"index;type:string" json:"requestId"`
 }
 
@@ -25,3 +25,32 @@ type UniqueOrder struct {
 }
 
 func (s UniqueOrder) TableName() string { return "unique_orders" }
+
+type OrderRequest struct {
+	ID          int     `json:"id"`
+	UserID      int     `json:"userId"`
+	ItemID      int     `json:"itemId"`
+	Volume      int     `json:"volume"`
+	Price       float32 `json:"price"`
+	Created     string  `json:"created"`
+	Updated     string  `json:"updated"`
+	Status      int     `json:"status"`
+	RequestID   string  `json:"requestId"`
+	Promocode   string  `json:"promocode"`
+	Certificate string  `json:"certificate"`
+}
+
+type OrderResponse struct {
+	ID          int     `json:"id"`
+	UserID      int     `json:"userId"`
+	ItemID      int     `json:"itemId"`
+	Volume      int     `json:"volume"`
+	Price       float32 `json:"price"`
+	Created     string  `json:"created"`
+	Updated     string  `json:"updated"`
+	Status      int     `json:"status"`
+	RequestID   string  `json:"requestId"`
+	Promocode   string  `json:"promocode"`
+	Certificate string  `json:"certificate"`
+	LoyaltyID   []int   `json:"loyaltyId"`
+}

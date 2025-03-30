@@ -20,6 +20,10 @@ func InitConfig(cfg *models.Config) {
 	Config = cfg
 }
 
+func GetCurrentDate() string {
+	return time.Now().Format("2006-01-02 15:04:05")
+}
+
 func GetCurrentTimestamp() int64 {
 	return time.Now().Unix()
 }
@@ -33,9 +37,9 @@ func FormatResponse(w http.ResponseWriter, httpStatus int, category string) {
 	SendResponse(w, data, category, httpStatus)
 }
 
-func CreateQueryWithScalarResponse(method, url string, data any) (string, error) {
+func CreateQueryWithResponse(method, url string, data any) (any, error) {
 	var err error
-	var response string
+	var response any
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -51,12 +55,12 @@ func CreateQueryWithScalarResponse(method, url string, data any) (string, error)
 	}
 
 	resp, err := client.Do(req)
-	logger.Infof("response for request: %v", resp)
+	logger.Infof("response for request %v: %v", url, resp)
 	if err != nil {
 		return response, err
 	}
 
-	var result map[string]string
+	var result map[string]any
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return response, err

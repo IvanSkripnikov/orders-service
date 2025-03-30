@@ -28,13 +28,13 @@ func checkError(w http.ResponseWriter, err error, category string) bool {
 			w.WriteHeader(http.StatusNotFound)
 			httpStatusCode = http.StatusNotFound
 			data = ResponseData{
-				"error": "Data not found",
+				"response": "Data not found",
 			}
 		} else {
 			httpStatusCode = http.StatusInternalServerError
 			w.WriteHeader(http.StatusInternalServerError)
 			data = ResponseData{
-				"error": "Internal error",
+				"response": "Internal error",
 			}
 		}
 
