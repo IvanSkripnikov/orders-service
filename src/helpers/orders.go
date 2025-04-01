@@ -139,9 +139,15 @@ func CreateOrder(w http.ResponseWriter, r *http.Request) {
 			logger.Errorf("Cant create unique order record %v", err)
 		}
 
-		_, err = CreateQueryWithResponse(http.MethodDelete, Config.LoyaltyServiceUrl+"/v1/loyalty/remove-for-user", orderResponse.LoyaltyID)
+		_, err = CreateQueryWithResponse(http.MethodDelete, Config.LoyaltyServiceUrl+"/v1/loyalty/remove-for-user/"+strconv.Itoa(order.UserID), orderResponse.LoyaltyID)
 		if checkError(w, err, category) {
 			logger.Errorf("Cant deactivate used loyalty %v", err)
+		}
+		if orderRequest.Certificate != "" {
+			_, err = CreateQueryWithResponse(http.MethodDelete, Config.LoyaltyServiceUrl+"/v1/loyalty/remove-certificate", orderRequest)
+			if checkError(w, err, category) {
+				logger.Errorf("Cant deactivate certificate %v", err)
+			}
 		}
 	} else {
 		logger.Debugf("Order already exists: %v", orderResponse)
