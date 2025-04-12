@@ -18,7 +18,7 @@ func InitHTTPServer() {
 	// подключение роутов
 	http.HandleFunc("/", Serve)
 	// подключение prometheus
-	http.Handle("/auth/metrics", promhttp.Handler())
+	http.Handle("/metrics", promhttp.Handler())
 
 	err := http.ListenAndServe(":8080", nil) //nolint:gosec
 	if err != nil {
